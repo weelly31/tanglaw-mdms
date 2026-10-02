@@ -73,6 +73,7 @@ const upcomingEvents = [
 
 export default function OverviewPage() {
   const [showAdd, setShowAdd] = useState(false);
+  const [showMobileDetails, setShowMobileDetails] = useState(false);
   const [members, setMembers] = useState(initialMembers);
   const identity = useDashboardIdentity();
 
@@ -142,44 +143,52 @@ export default function OverviewPage() {
         </div>
       </section>
 
-      <section className="dashboard-lower-grid">
-        <article className="panel activity-panel">
-          <div className="panel-heading"><div><h2>Recent activity</h2><p>Latest updates from your area</p></div><button className="more-button" aria-label="More activity options"><Icon name="more" /></button></div>
-          <div className="activity-list">
-            {recentActivity.map((activity) => (
-              <div className="activity-item" key={activity.name}>
-                <span className={`member-avatar avatar-${activity.color}`}>{activity.initials}</span>
-                <div className="activity-item-copy"><p><strong>{activity.name}</strong> {activity.action}</p><span>{activity.time}</span></div>
+      <section className={`dashboard-more ${showMobileDetails ? "dashboard-more-expanded" : ""}`}>
+        <button className="dashboard-more-toggle" type="button" aria-expanded={showMobileDetails} onClick={() => setShowMobileDetails((expanded) => !expanded)}>
+          <span>{showMobileDetails ? "Hide" : "View"} activity, follow-ups &amp; members</span>
+          <Icon name="chevron-down" size={16} />
+        </button>
+        <div className="dashboard-more-content">
+          <div className="dashboard-lower-grid">
+            <article className="panel activity-panel">
+              <div className="panel-heading"><div><h2>Recent activity</h2><p>Latest updates from your area</p></div><button className="more-button" aria-label="More activity options"><Icon name="more" /></button></div>
+              <div className="activity-list">
+                {recentActivity.map((activity) => (
+                  <div className="activity-item" key={activity.name}>
+                    <span className={`member-avatar avatar-${activity.color}`}>{activity.initials}</span>
+                    <div className="activity-item-copy"><p><strong>{activity.name}</strong> {activity.action}</p><span>{activity.time}</span></div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <Link className="text-link panel-bottom-link" href="/dashboard/masterlist">Open masterlist <Icon name="chevron-right" size={15} /></Link>
-        </article>
+              <Link className="text-link panel-bottom-link" href="/dashboard/masterlist">Open masterlist <Icon name="chevron-right" size={15} /></Link>
+            </article>
 
-        <article className="panel follow-up-panel">
-          <div className="panel-heading"><div><h2>Needs follow-up</h2><p>Members to check in with</p></div><span className="follow-up-count">136</span></div>
-          <div className="follow-up-highlight"><span className="follow-up-highlight-icon"><Icon name="clock" size={17} /></span><div><strong>Keep every connection growing</strong><p>Review members who may need a personal check-in.</p></div></div>
-          <div className="follow-up-stats"><div><strong>24</strong><span>New this week</span></div><div><strong>8</strong><span>Overdue check-ins</span></div><div><strong>12</strong><span>Local areas</span></div></div>
-          <Link className="button button-secondary follow-up-action" href="/dashboard/masterlist">Review follow-ups <Icon name="chevron-right" size={15} /></Link>
-        </article>
+            <article className="panel follow-up-panel">
+              <div className="panel-heading"><div><h2>Needs follow-up</h2><p>Members to check in with</p></div><span className="follow-up-count">136</span></div>
+              <div className="follow-up-highlight"><span className="follow-up-highlight-icon"><Icon name="clock" size={17} /></span><div><strong>Keep every connection growing</strong><p>Review members who may need a personal check-in.</p></div></div>
+              <div className="follow-up-stats"><div><strong>24</strong><span>New this week</span></div><div><strong>8</strong><span>Overdue check-ins</span></div><div><strong>12</strong><span>Local areas</span></div></div>
+              <Link className="button button-secondary follow-up-action" href="/dashboard/masterlist">Review follow-ups <Icon name="chevron-right" size={15} /></Link>
+            </article>
 
-        <article className="panel events-panel">
-          <div className="panel-heading"><div><h2>Upcoming events</h2><p>Gatherings and activities this month</p></div><Link className="text-link" href="/dashboard/calendar">Full calendar <Icon name="chevron-right" size={14} /></Link></div>
-          <div className="upcoming-event-list">
-            {upcomingEvents.map((event) => (
-              <div className="upcoming-event" key={event.title}>
-                <div className={`upcoming-event-date ${event.color}`}><strong>{event.date}</strong><span>{event.month}</span></div>
-                <div className="upcoming-event-copy"><strong>{event.title}</strong><span>{event.time}</span></div>
-                <Icon name="chevron-right" size={15} className="upcoming-event-arrow" />
+            <article className="panel events-panel">
+              <div className="panel-heading"><div><h2>Upcoming events</h2><p>Gatherings and activities this month</p></div><Link className="text-link" href="/dashboard/calendar">Full calendar <Icon name="chevron-right" size={14} /></Link></div>
+              <div className="upcoming-event-list">
+                {upcomingEvents.map((event) => (
+                  <div className="upcoming-event" key={event.title}>
+                    <div className={`upcoming-event-date ${event.color}`}><strong>{event.date}</strong><span>{event.month}</span></div>
+                    <div className="upcoming-event-copy"><strong>{event.title}</strong><span>{event.time}</span></div>
+                    <Icon name="chevron-right" size={15} className="upcoming-event-arrow" />
+                  </div>
+                ))}
               </div>
-            ))}
+            </article>
           </div>
-        </article>
-      </section>
 
-      <section className="panel recent-panel">
-        <div className="panel-heading"><div><h2>Recently added members</h2><p>The latest people added to your area masterlist</p></div><Link className="text-link" href="/dashboard/masterlist">View masterlist <Icon name="chevron-right" size={15} /></Link></div>
-        <MemberTable members={members.slice(0, 4)} />
+          <section className="panel recent-panel">
+            <div className="panel-heading"><div><h2>Recently added members</h2><p>The latest people added to your area masterlist</p></div><Link className="text-link" href="/dashboard/masterlist">View masterlist <Icon name="chevron-right" size={15} /></Link></div>
+            <MemberTable members={members.slice(0, 4)} />
+          </section>
+        </div>
       </section>
 
       {showAdd && <AddMemberModal close={() => setShowAdd(false)} addMember={addMember} />}

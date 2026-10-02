@@ -6,6 +6,7 @@ import { useState, type FormEvent } from "react";
 import { FoundationLogo } from "@/components/foundation-logo";
 import { saveDashboardName } from "@/components/dashboard/use-dashboard-identity";
 import { Icon } from "@/components/icon";
+import { PwaInstallButton } from "@/components/pwa-install-button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function LoginPage() {
           </form>
           <div className="login-help"><span>New to Tanglaw Touch Care Foundation?</span> <button>Ask your area administrator</button></div>
         </div>
-        <div className="login-footer"><span>© 2026 Tanglaw Touch Care Foundation</span><Link href="/dashboard">Dashboard preview</Link></div>
+        <div className="login-footer"><span>© 2026 Tanglaw Touch Care Foundation</span><div className="login-footer-actions"><PwaInstallButton /><Link href="/dashboard">Dashboard preview</Link></div></div>
       </section>
     </main>
   );

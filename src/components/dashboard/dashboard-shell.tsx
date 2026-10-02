@@ -6,6 +6,7 @@ import { useState } from "react";
 import { FoundationLogo } from "@/components/foundation-logo";
 import { useDashboardIdentity } from "@/components/dashboard/use-dashboard-identity";
 import { Icon } from "@/components/icon";
+import { PwaInstallButton } from "@/components/pwa-install-button";
 
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: "grid" },
@@ -63,6 +64,7 @@ function TopBar({ setMobileOpen, identity }: { setMobileOpen: (open: boolean) =>
       <div className="breadcrumb"><span>Workspace</span><Icon name="chevron-right" size={14} /><strong>{activeItem?.label ?? "Metro East Area"}</strong></div>
       <div className="topbar-actions">
         <Link className="global-search" href="/dashboard/masterlist"><Icon name="search" size={17} /><span>Search anything...</span><kbd>⌘ K</kbd></Link>
+        <PwaInstallButton />
         <button className="icon-button notification-button" aria-label="Notifications"><Icon name="bell" size={19} /><i /></button>
         <div className="topbar-divider" />
         <button className="topbar-profile" aria-label="Open profile menu"><span className="user-avatar">{identity.initials}</span><span className="profile-chevron"><Icon name="chevron-down" size={15} /></span></button>

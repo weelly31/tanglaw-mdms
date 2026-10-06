@@ -9,7 +9,7 @@ import { Icon } from "@/components/icon";
 import { PwaInstallButton } from "@/components/pwa-install-button";
 
 const navItems = [
-  { label: "Overview", href: "/dashboard", icon: "grid" },
+  { label: "ComDev Dashboard", href: "/dashboard", icon: "grid" },
   { label: "Masterlist", href: "/dashboard/masterlist", icon: "users", count: "4.2k" },
   { label: "CARES Program", href: "/dashboard/cares-program", icon: "heart" },
   { label: "SGL Database", href: "/dashboard/sgl-database", icon: "activity" },
@@ -91,9 +91,9 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         </main>
       </div>
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
-        {navItems.filter((item) => ["Overview", "Masterlist", "CARES Program", "SD Calendar"].includes(item.label)).map((item) => {
+        {navItems.filter((item) => ["ComDev Dashboard", "Masterlist", "CARES Program", "SD Calendar"].includes(item.label)).map((item) => {
           const active = item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href);
-          const label = item.label === "CARES Program" ? "Programs" : item.label === "SD Calendar" ? "Calendar" : item.label;
+          const label = item.label === "ComDev Dashboard" ? "Dashboard" : item.label === "CARES Program" ? "Programs" : item.label === "SD Calendar" ? "Calendar" : item.label;
           return <Link key={item.href} href={item.href} className={active ? "mobile-nav-active" : ""}><Icon name={item.icon} size={19} /><span>{label}</span></Link>;
         })}
       </nav>

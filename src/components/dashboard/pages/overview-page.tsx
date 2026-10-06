@@ -1,197 +1,142 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { AddMemberModal } from "@/components/dashboard/add-member-modal";
-import { initialMembers, type Member } from "@/components/dashboard/data";
-import { MemberTable } from "@/components/dashboard/member-table";
 import { useDashboardIdentity } from "@/components/dashboard/use-dashboard-identity";
 import { Icon } from "@/components/icon";
 
-type MetricIcon = "heart" | "activity" | "shield" | "users";
+const comdevProfile = {
+  pastor: "Ptr. Marites D. Santos",
+  church: "Metro East Community Church",
+  membersBeforeTtc: 969,
+  mouDate: "March 15, 2024",
+};
 
-function RegionalMetricCard({
-  label,
-  value,
-  icon,
-  theme,
-  details,
-}: {
-  label: string;
-  value: string;
-  icon: MetricIcon;
-  theme: string;
-  details: { label: string; count: string }[];
-}) {
+const threeEs = [
+  { label: "Evangelized", description: "First steps of faith", count: 260, tone: "navy" },
+  { label: "Edified", description: "Growing in community", count: 154, tone: "blue" },
+  { label: "Endorsed", description: "Ready to serve", count: 8, tone: "gold" },
+] as const;
+
+const partnershipStats = [
+  { label: "Members during TTC Partnership", value: 8, icon: "users", featured: true },
+  { label: "Small Group Leaders (SGL)", value: 41, icon: "activity", featured: false },
+  { label: "Small Group Members (SGM)", value: 109, icon: "shield", featured: false },
+  { label: "Outreach", value: 6, icon: "heart", featured: false },
+  { label: "Daughter Churches", value: 3, icon: "home", featured: false },
+  { label: "Pastors", value: 13, icon: "users", featured: false },
+] as const;
+
+const caresImpact = [
+  { label: "Competence & Skills Training for Livelihood", evangelized: 562 },
+  { label: "Assistance to Child & Family Nutrition", evangelized: 1150 },
+  { label: "Relief & Empowerment", evangelized: 1370 },
+  { label: "Educational Advancement", evangelized: 7 },
+  { label: "Spiritual Development", evangelized: 320 },
+];
+
+const numberFormat = new Intl.NumberFormat("en-US");
+const toneColors = { navy: "#1f2f68", blue: "#6f90cf", gold: "#d1a73d" };
+
+function ThreeEsDonut() {
+  const total = threeEs.reduce((sum, item) => sum + item.count, 0);
+  const gradient = threeEs.map((item, index) => {
+    const before = threeEs.slice(0, index).reduce((sum, previous) => sum + previous.count, 0);
+    const start = (before / total) * 100;
+    const end = ((before + item.count) / total) * 100;
+    return `${toneColors[item.tone]} ${start}% ${end}%`;
+  }).join(", ");
+
   return (
-    <article className={`regional-metric ${theme}`}>
-      <div className="regional-metric-heading">
-        <span className="regional-metric-icon"><Icon name={icon} size={18} /></span>
-        <span className="regional-metric-label">{label}</span>
-      </div>
-      <div className="regional-metric-content">
-        <strong className="regional-metric-total">{value}</strong>
-        {details.length > 0 && (
-          <dl className="regional-metric-details">
-            {details.map((detail) => (
-              <div key={detail.label}>
-                <dt>{detail.label}</dt>
-                <dd>{detail.count}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
-      </div>
-    </article>
+    <div className="cd-donut" style={{ background: `conic-gradient(${gradient})` }} role="img" aria-label={`3 E's distribution of ${total} people`}>
+      <div className="cd-donut-hole"><strong>{numberFormat.format(total)}</strong><span>Total reached</span></div>
+    </div>
   );
 }
 
-const engagementOutcomes = [
-  { label: "Evangelized", count: "260", detail: "First steps of faith", color: "outcome-indigo" },
-  { label: "Edified", count: "154", detail: "Growing in community", color: "outcome-teal" },
-  { label: "Endorsed", count: "8", detail: "Ready to serve", color: "outcome-amber" },
-];
-
-const caresPrograms = [
-  { title: "Competence & Skills Training", description: "Skills for sustainable livelihoods", beneficiaries: "562", color: "care-indigo", icon: "activity" },
-  { title: "Assistance to Child & Family Nutrition", description: "Healthier homes and families", beneficiaries: "1,150", color: "care-teal", icon: "heart" },
-  { title: "Relief & Empowerment", description: "Support for families in need", beneficiaries: "1,370", color: "care-rose", icon: "shield" },
-  { title: "Educational Advancement", description: "More opportunities for learners", beneficiaries: "7", color: "care-amber", icon: "file" },
-] as const;
-
-const recentActivity = [
-  { initials: "MS", name: "Marites D. Santos", action: "was added to the masterlist", time: "12 min ago", color: "peach" },
-  { initials: "JM", name: "Joel R. Manalo", action: "completed SGL profile review", time: "1 hr ago", color: "blue" },
-  { initials: "LV", name: "Liza P. Villanueva", action: "was marked for follow-up", time: "3 hrs ago", color: "purple" },
-];
-
-const upcomingEvents = [
-  { date: "08", month: "OCT", title: "Small Group Leaders Huddle", time: "9:00 AM · Taytay Community Hall", color: "event-indigo" },
-  { date: "14", month: "OCT", title: "Family Nutrition Workshop", time: "10:30 AM · Antipolo Center", color: "event-teal" },
-  { date: "22", month: "OCT", title: "Metro East Area Gathering", time: "2:00 PM · Marikina City", color: "event-rose" },
-];
-
 export default function OverviewPage() {
-  const [showAdd, setShowAdd] = useState(false);
-  const [showMobileDetails, setShowMobileDetails] = useState(false);
-  const [members, setMembers] = useState(initialMembers);
   const identity = useDashboardIdentity();
-
-  function addMember(member: Member) {
-    setMembers((current) => [member, ...current]);
-    setShowAdd(false);
-  }
+  const caresTotal = caresImpact.reduce((sum, item) => sum + item.evangelized, 0);
+  const caresMax = Math.max(...caresImpact.map((item) => item.evangelized));
 
   return (
     <>
       <div className="page-heading">
         <div>
           <div className="eyebrow"><span className="status-dot" /> {identity.dateLabel}</div>
-          <h1>{identity.greeting}, {identity.name} <span className="wave">✳</span></h1>
-          <p>Here&apos;s your Metro East Area at a glance.</p>
+          <h1>ComDev Dashboard</h1>
+          <p>{identity.greeting}, {identity.name}. Here&apos;s the partnership overview at a glance.</p>
         </div>
         <div className="heading-actions">
-          <button className="button button-secondary"><Icon name="calendar" size={16} /> This month <Icon name="chevron-down" size={14} /></button>
-          <button className="button button-primary" onClick={() => setShowAdd(true)}><Icon name="plus" size={17} /> Add member</button>
+          <Link className="button button-secondary" href="/dashboard/reports"><Icon name="file" size={16} /> Reports</Link>
+          <Link className="button button-primary" href="/dashboard/masterlist"><Icon name="users" size={16} /> View masterlist</Link>
         </div>
       </div>
 
-      <section className="area-overview-section" aria-labelledby="area-overview-title">
-        <div className="dashboard-section-heading">
-          <div><span className="section-kicker">YOUR COMMUNITY</span><h2 id="area-overview-title">Metro East Area</h2></div>
-          <Link className="text-link" href="/dashboard/masterlist">View masterlist <Icon name="chevron-right" size={15} /></Link>
+      <section className="cd-profile" aria-label="ComDev profile">
+        <div className="cd-profile-main">
+          <span className="cd-profile-avatar"><Icon name="heart" size={22} /></span>
+          <div>
+            <span className="cd-label">Name of Pastor</span>
+            <strong className="cd-profile-name">{comdevProfile.pastor}</strong>
+          </div>
         </div>
-        <div className="regional-metric-grid">
-          <RegionalMetricCard label="ComDev Pastors" value="13" icon="heart" theme="regional-indigo" details={[{ label: "1st year", count: "4" }, { label: "2nd year", count: "3" }, { label: "3rd year", count: "3" }, { label: "In training", count: "3" }]} />
-          <RegionalMetricCard label="Small Group Leaders" value="41" icon="activity" theme="regional-green" details={[{ label: "Explore", count: "16" }, { label: "Engage", count: "7" }, { label: "Expand", count: "8" }, { label: "Explode", count: "10" }]} />
-          <RegionalMetricCard label="Small Group Members" value="109" icon="shield" theme="regional-plum" details={[{ label: "Explore", count: "25" }, { label: "Engage", count: "37" }, { label: "Expand", count: "32" }, { label: "Explode", count: "15" }]} />
-          <article className="regional-total-card">
-            <span className="regional-total-icon"><Icon name="users" size={19} /></span>
-            <span className="regional-total-label">Total members</span>
-            <strong>977</strong>
-            <div className="regional-total-breakdown"><span>Before TTC</span><b>969</b></div>
-            <div className="regional-total-breakdown"><span>Added during partnership</span><b className="new-member-count">+8</b></div>
-          </article>
+        <dl className="cd-profile-details">
+          <div><dt>Name of Church</dt><dd>{comdevProfile.church}</dd></div>
+          <div><dt>Members Before TTC</dt><dd>{numberFormat.format(comdevProfile.membersBeforeTtc)}</dd></div>
+          <div><dt>Date of MOU</dt><dd>{comdevProfile.mouDate}</dd></div>
+        </dl>
+      </section>
+
+      <section className="cd-section" aria-labelledby="three-es-title">
+        <div className="dashboard-section-heading">
+          <div><span className="section-kicker">FAITH JOURNEY</span><h2 id="three-es-title">The 3 E&apos;s</h2></div>
+        </div>
+        <div className="panel cd-three-es">
+          <ThreeEsDonut />
+          <div className="cd-three-es-list">
+            {threeEs.map((item) => (
+              <article className={`cd-e-card cd-tone-${item.tone}`} key={item.label}>
+                <span className="cd-e-icon"><Icon name="check" size={15} /></span>
+                <div className="cd-e-copy"><strong>{item.label}</strong><span>{item.description}</span></div>
+                <b>{numberFormat.format(item.count)}</b>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="engagement-outcomes" aria-label="Faith journey outcomes">
-        {engagementOutcomes.map((outcome) => (
-          <article className={`outcome-card ${outcome.color}`} key={outcome.label}>
-            <span className="outcome-icon"><Icon name="check" size={15} /></span>
-            <div className="outcome-copy"><strong>{outcome.label}</strong><span>{outcome.detail}</span></div>
-            <b>{outcome.count}</b>
-          </article>
-        ))}
-      </section>
-
-      <section className="cares-overview-section">
+      <section className="cd-section" aria-labelledby="partnership-title">
         <div className="dashboard-section-heading">
-          <div><span className="section-kicker">MAKING A DIFFERENCE</span><h2>CARES Program</h2><p>People reached through community care and development.</p></div>
-          <Link className="text-link" href="/dashboard/cares-program">Explore programs <Icon name="chevron-right" size={15} /></Link>
+          <div><span className="section-kicker">TTC PARTNERSHIP</span><h2 id="partnership-title">Partnership overview</h2></div>
         </div>
-        <div className="cares-overview-grid">
-          {caresPrograms.map((program) => (
-            <Link href="/dashboard/cares-program" className={`cares-overview-card ${program.color}`} key={program.title}>
-              <div className="cares-card-icon"><Icon name={program.icon} size={18} /></div>
-              <span className="care-label">CARES PROGRAM</span>
-              <strong className="cares-card-title">{program.title}</strong>
-              <span className="cares-card-description">{program.description}</span>
-              <div className="cares-card-footer"><span>Beneficiaries</span><b>{program.beneficiaries}</b><Icon name="chevron-right" size={15} /></div>
-            </Link>
+        <div className="cd-stat-grid">
+          {partnershipStats.map((stat) => (
+            <article className={`cd-stat ${stat.featured ? "cd-stat-featured" : ""}`} key={stat.label}>
+              <span className="cd-stat-icon"><Icon name={stat.icon} size={17} /></span>
+              <strong>{numberFormat.format(stat.value)}</strong>
+              <span className="cd-stat-label">{stat.label}</span>
+            </article>
           ))}
         </div>
       </section>
 
-      <section className={`dashboard-more ${showMobileDetails ? "dashboard-more-expanded" : ""}`}>
-        <button className="dashboard-more-toggle" type="button" aria-expanded={showMobileDetails} onClick={() => setShowMobileDetails((expanded) => !expanded)}>
-          <span>{showMobileDetails ? "Hide" : "View"} activity, follow-ups &amp; members</span>
-          <Icon name="chevron-down" size={16} />
-        </button>
-        <div className="dashboard-more-content">
-          <div className="dashboard-lower-grid">
-            <article className="panel activity-panel">
-              <div className="panel-heading"><div><h2>Recent activity</h2><p>Latest updates from your area</p></div><button className="more-button" aria-label="More activity options"><Icon name="more" /></button></div>
-              <div className="activity-list">
-                {recentActivity.map((activity) => (
-                  <div className="activity-item" key={activity.name}>
-                    <span className={`member-avatar avatar-${activity.color}`}>{activity.initials}</span>
-                    <div className="activity-item-copy"><p><strong>{activity.name}</strong> {activity.action}</p><span>{activity.time}</span></div>
-                  </div>
-                ))}
-              </div>
-              <Link className="text-link panel-bottom-link" href="/dashboard/masterlist">Open masterlist <Icon name="chevron-right" size={15} /></Link>
-            </article>
-
-            <article className="panel follow-up-panel">
-              <div className="panel-heading"><div><h2>Needs follow-up</h2><p>Members to check in with</p></div><span className="follow-up-count">136</span></div>
-              <div className="follow-up-highlight"><span className="follow-up-highlight-icon"><Icon name="clock" size={17} /></span><div><strong>Keep every connection growing</strong><p>Review members who may need a personal check-in.</p></div></div>
-              <div className="follow-up-stats"><div><strong>24</strong><span>New this week</span></div><div><strong>8</strong><span>Overdue check-ins</span></div><div><strong>12</strong><span>Local areas</span></div></div>
-              <Link className="button button-secondary follow-up-action" href="/dashboard/masterlist">Review follow-ups <Icon name="chevron-right" size={15} /></Link>
-            </article>
-
-            <article className="panel events-panel">
-              <div className="panel-heading"><div><h2>Upcoming events</h2><p>Gatherings and activities this month</p></div><Link className="text-link" href="/dashboard/calendar">Full calendar <Icon name="chevron-right" size={14} /></Link></div>
-              <div className="upcoming-event-list">
-                {upcomingEvents.map((event) => (
-                  <div className="upcoming-event" key={event.title}>
-                    <div className={`upcoming-event-date ${event.color}`}><strong>{event.date}</strong><span>{event.month}</span></div>
-                    <div className="upcoming-event-copy"><strong>{event.title}</strong><span>{event.time}</span></div>
-                    <Icon name="chevron-right" size={15} className="upcoming-event-arrow" />
-                  </div>
-                ))}
-              </div>
-            </article>
-          </div>
-
-          <section className="panel recent-panel">
-            <div className="panel-heading"><div><h2>Recently added members</h2><p>The latest people added to your area masterlist</p></div><Link className="text-link" href="/dashboard/masterlist">View masterlist <Icon name="chevron-right" size={15} /></Link></div>
-            <MemberTable members={members.slice(0, 4)} />
-          </section>
+      <section className="cd-section" aria-labelledby="cares-title">
+        <div className="dashboard-section-heading">
+          <div><span className="section-kicker">IMPLEMENTATION AND IMPACT</span><h2 id="cares-title">C.A.R.E.S. — Number Evangelized</h2></div>
+          <Link className="text-link" href="/dashboard/cares-program">Explore programs <Icon name="chevron-right" size={15} /></Link>
+        </div>
+        <div className="panel cd-cares">
+          <div className="cd-cares-total"><strong>{numberFormat.format(caresTotal)}</strong><span>Total evangelized through C.A.R.E.S.</span></div>
+          <ul className="cd-cares-list">
+            {caresImpact.map((item) => (
+              <li key={item.label}>
+                <div className="cd-cares-row"><span>{item.label}</span><b>{numberFormat.format(item.evangelized)}</b></div>
+                <div className="cd-bar-track"><i style={{ width: `${Math.max((item.evangelized / caresMax) * 100, 1.5)}%` }} /></div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
-
-      {showAdd && <AddMemberModal close={() => setShowAdd(false)} addMember={addMember} />}
     </>
   );
 }

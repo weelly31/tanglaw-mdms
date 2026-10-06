@@ -393,6 +393,8 @@ kbd { font-family: inherit; font-size: 9px; white-space: nowrap; color: #a9abba;
   .dashboard-section-heading h2 { font-size: 15px; }
 }
 @media (max-width: 650px) {
+  input, select, textarea { font-size: 16px !important; }
+  .login-page { overflow-x: hidden; touch-action: manipulation; }
   html, body { width: 100%; min-width: 0; }
   body { background: #f7f7fb; }
   .app-shell { width: 100%; min-width: 0; }
